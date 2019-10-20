@@ -1,7 +1,3 @@
-
-
-
-
 library(sf)
 library(tmap)
 library(leaflet)
@@ -34,7 +30,6 @@ ui <- bootstrapPage(
     #leaflet will call the map from the server function
     leafletOutput("map", width = "100%", height = "100%"),
     # this sets theput panel placement
-    titlePanel("UK local GVA 1997-2017"),
     absolutePanel(top = 10, right = 10,
                   selectInput("years",
                               label = "year",
