@@ -26,8 +26,7 @@ UKDataMap <- merge(UK,
 
 
 choice =c("GVA_._1997","GVA_._1998","GVA_._1999","GVA_._2000","GVA_._2001","GVA_._2002","GVA_._2003","GVA_._2004","GVA_._2005","GVA_._2006","GVA_._2007",
-           "GVA_._2008","GVA_._2009","GVA_._2010","GVA_._2011","GVA_._2012","GVA_._2013","GVA_._2014","GVA_._2015","GVA_._2016","GVA_._2017","Percentage_change")
-
+           "GVA_._2008","GVA_._2009","GVA_._2010","GVA_._2011","GVA_._2012","GVA_._2013","GVA_._2014","GVA_._2015","GVA_._2016","GVA_._2017")
 
 
 ui <- bootstrapPage(
@@ -52,11 +51,6 @@ ui <- bootstrapPage(
                               step = 1,
                               sep = ""
                   ),
-                  selectInput("classIntStyle", "Interval Style",
-                              c("Jenks Natural Breaks" = "jenks",
-                                "Quantile" = "quantile",
-                                "Equal Interval" = "equal",
-                                "Pretty" = "pretty"))
                   
     )
 )
@@ -71,7 +65,7 @@ server <- function(input, output, session) {
     })
     observe({
         (UKDataMap2 <- ({UKDataMap[as.numeric(UKDataMap[[input$years]])>=input$slide[1]&as.numeric(UKDataMap[[input$years]]) <= input$slide[2],]}))
-        breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=9, style=input$classIntStyle)
+        breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=11, style= "fixed", fixedBreaks =c(0,75,80,85,90,95,100,105,110,115,120,1000))
         breaks <- breaks$brks
         pal <- colorBin(palette = input$colourbrewerpalette, 
                         domain = UKDataMap2[[input$years]],
@@ -96,7 +90,7 @@ server <- function(input, output, session) {
         
         # this observer follows the same pattern
         # but adds a legend 
-        breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=9, style=input$classIntStyle)
+        breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=11, style= "fixed", fixedBreaks =c(0,75,80,85,90,95,100,105,110,115,120,1000))
         breaks <- breaks$brks
         
         pal <- colorBin(palette = input$colourbrewerpalette, 
