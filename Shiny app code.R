@@ -19,7 +19,7 @@ library(RColorBrewer)
 
 UK <- st_read("C:/Users/cex/Downloads/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
 
-UKdata <- read.csv("C:/Users/cex/Documents/Smart Cities and Urban Analytics/GIS/Assessment/UKdata2.csv", na = "n/a")
+UKdata <- read.csv("C:/Users/cex/Documents/Smart Cities and Urban Analytics/GIS/Assessment attempts/Data/UKdata3.csv", na = "n/a")
 
 UKDataMap <- merge(UK,
                    UKData,
@@ -102,7 +102,7 @@ server <- function(input, output, session) {
                                input$slide[2],]}))
     
     # this observer follows the same pattern
-    # but adds a legend 
+    # but adds a legend "d
     breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=9, style=input$classIntStyle)
     breaks <- breaks$brks
     

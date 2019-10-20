@@ -1,14 +1,9 @@
-install.packages("leafpop")
-install.packages('rsconnect')
-rsconnect::setAccountInfo(name='phillllllip',
-                          token='7A0C2AB9C5858337DC209BB2201815F2',
-                          secret='ggAIn7b7Ijot0rGuk6AV4K4CozXAooN3iI1QPIpU')
-library(rsconnect)
+
+
 
 
 library(sf)
 library(tmap)
-library(leafpop)
 library(leaflet)
 library(tmaptools)
 library(tidyverse)
@@ -19,27 +14,27 @@ library(RColorBrewer)
 
 UK <- st_read("C:/Users/cex/Downloads/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
 
-UKdata <- read.csv("C:/Users/cex/Documents/Smart Cities and Urban Analytics/GIS/Assessment/UKdata2.csv", na = "n/a")
+UKData <- read.csv("C:/Users/cex/Documents/Smart Cities and Urban Analytics/GIS/Assessment/UKdata3.csv", na="n/a")
+
+
 
 UKDataMap <- merge(UK,
                    UKData,
                    by.x = "nuts318cd",
-                   by.y = "NUTS code",
+                   by.y = "ï..NUTS.code",
                    no.dups=TRUE)
-class(UKDataMap)
 
-choice=c("x1997","x1998","x1999","x2000","x2001","x2002","x2003",
-         "x2004","x2005","x2006","x2007","x2008","x2009","x2010",
-         "x2011","x2012","x2013","x2014","x2015","x2016","x20173")
+
+choice =c("GVA_._1997","GVA_._1998","GVA_._1999","GVA_._2000","GVA_._2001","GVA_._2002","GVA_._2003","GVA_._2004","GVA_._2005","GVA_._2006","GVA_._2007",
+           "GVA_._2008","GVA_._2009","GVA_._2010","GVA_._2011","GVA_._2012","GVA_._2013","GVA_._2014","GVA_._2015","GVA_._2016","GVA_._2017","Percentage_change")
 
 
 
 ui <- bootstrapPage(
     tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-    # we're using leaflet and have title the outputID map
-    # this will call it from our server function below
+    #leaflet will call the map from the server function
     leafletOutput("map", width = "100%", height = "100%"),
-    # this sets our input panel placement
+    # this sets theput panel placement
     titlePanel("UK local GVA 1997-2017"),
     absolutePanel(top = 10, right = 10,
                   selectInput("years",
@@ -48,13 +43,13 @@ ui <- bootstrapPage(
                               multiple = FALSE
                   ),
                   selectInput("colourbrewerpalette", "Color Scheme",
-                              rownames(subset(brewer.pal.info, category %in% c("seq","div")))
+                              rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
                   ),
                   sliderInput("slide","local GVA",
-                              min(UKDataMap$x1997, na.rm=TRUE),
-                              max(UKDataMap$x20173, na.rm=TRUE),
-                              value = range(UKDataMap$x1997, na.rm=TRUE),
-                              step = 1000,
+                              min(as.numeric(UKDataMap$GVA_._2017), na.rm=TRUE),
+                              max(as.numeric(UKDataMap$GVA_._2017), na.rm=TRUE),
+                              value = range(as.numeric(UKDataMap$GVA_._2017), na.rm=TRUE),
+                              step = 1,
                               sep = ""
                   ),
                   selectInput("classIntStyle", "Interval Style",
@@ -75,7 +70,7 @@ server <- function(input, output, session) {
         leaflet(UKDataMap) %>% addTiles() %>% setView(-0.5, 53, zoom = 6)
     })
     observe({
-        (UKDataMap2 <- ({UKDataMap[UKDataMap[[input$years]]>=input$slide[1]&UKDataMap[[input$years]] <= input$slide[2],]}))
+        (UKDataMap2 <- ({UKDataMap[as.numeric(UKDataMap[[input$years]])>=input$slide[1]&as.numeric(UKDataMap[[input$years]]) <= input$slide[2],]}))
         breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=9, style=input$classIntStyle)
         breaks <- breaks$brks
         pal <- colorBin(palette = input$colourbrewerpalette, 
@@ -87,10 +82,8 @@ server <- function(input, output, session) {
                         weight = 2,
                         opacity = 1,
                         dashArray = "3",
-                        # add a popup of borough name and count based on
-                        # the drop down of accomodation (hotel or airbnb)
-                        # remember the ID we gave to that was Accom
-                        popup = paste(UKDataMap2$nuts318nm,"- £",UKDataMap2[[input$years]]),
+                        # a popup of region name and %
+                        popup = paste(UKDataMap2$nuts318nm,"- %",UKDataMap2[[input$years]]),
                         fillOpacity = 0.5, 
                         fillColor = ~pal(UKDataMap2[[input$years]])
             )
@@ -98,7 +91,7 @@ server <- function(input, output, session) {
     
     observe({
         # call the filter again for this observer
-        (UKDataMap2<-({UKDataMap[UKDataMap[[input$years]] >= input$slide[1] & UKDataMap[[input$years]] <=
+        (UKDataMap2<-({UKDataMap[as.numeric(UKDataMap[[input$years]]) >= input$slide[1] & as.numeric(UKDataMap[[input$years]]) <=
                                      input$slide[2],]}))
         
         # this observer follows the same pattern
