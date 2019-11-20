@@ -1,0 +1,13 @@
+name: Assessmentattempts
+title: Assessmentattempts
+username:
+account: phillllllip
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1431479
+bundleId: 2568499
+url: https://phillllllip.shinyapps.io/Assessmentattempts/
+when: 1573050857.50072
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Brexit v GVA.R|Shiny app code.R|Assessment_attempt_1/rsconnect/shinyapps.io/phillllllip/Assessment_attempt_1.dcf|Assessment_attempt_1/rsconnect/shinyapps.io/phillllllip/UK_regional_GVA_1997-2017.dcf

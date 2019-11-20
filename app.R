@@ -3,7 +3,6 @@ library(tmap)
 library(leaflet)
 library(tmaptools)
 library(tidyverse)
-library(plyr)
 library(classInt)
 library(shiny)
 library(RColorBrewer)
@@ -16,17 +15,9 @@ library(here)
 UK <- st_read("Data/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
 #reading in the UK shapefile
 
-
-#UK <- st_read("C:/Users/cex/Downloads/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
-#UK <- st_read(here("Data/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_3_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp"))
-#reading in the UK shapefile
-
-#UKData <- read.csv("Data/UKdata3.csv", na="n/a")
 #reading in the UK data for regional GVA
-
 UKData <- read.csv("Data/UKdata3.csv", na="n/a")
-#UKData <- read.csv(here("Data/UKdata3.csv"), na="n/a")
-#reading in the UK data for regional GVA
+
 
 #merging the shapefile and the regional data on the basis of the NUTS3 classifications
 UKDataMap <- merge(UK,
