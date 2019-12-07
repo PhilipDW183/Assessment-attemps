@@ -7,75 +7,32 @@ library(classInt)
 library(shiny)
 library(RColorBrewer)
 library(here)
-library(geojsonio)
-library(sf)
 
-#reading in UK shapefile
+#dir <- getwd()
+
+#here()
+
 NUTS3 <- geojson_read("https://opendata.arcgis.com/datasets/473aefdcee19418da7e5dbfdeacf7b90_2.geojson", what = "sp")
 
 NUTS3_SF <- st_as_sf(NUTS3)
-
-
-#adding NUTS2 boundaries
-NUTS3_SF$NUTS2 <- strtrim(UK$nuts318cd, 4)
-
-#adding NUTS1 boundaries
-NUTS3_SF$NUTS1 <- strtrim(UK$nuts318cd, 3)
-
-#dissolving NUTS3 into NUTS2
-NUTS2_SF <- UK %>% group_by(NUTS3_SF$NUTS2) %>% summarise()
-
-#dissolving NUTS3 into NUTS1
-NUTS1_SF <- UK %>% group_by(NUTS3_SF$NUTS1) %>% summarise()
+#reading in the UK shapefile
 
 #reading in the UK data for regional GVA
-UKData <- read.csv("Data/regional economic data 1998-2018.csv", na="n/a")
+UKData <- read.csv("Data/NUTS3.csv", na="n/a")
 
-
-#taking out NUTS1 levels
-UKNUTS1 <- UKData[which(UKData$ï..NUTS.level == 'NUTS1'),]
-
-names(UKNUTS1) <- c("NUTS level", "NUTS.code", "Region name", "in_1997","in_1998","in_1999","in_2000","in_2001","in_2002","in_2003","in_2004","in_2005","in_2006","in_2007",
-                    "in_2008","in_2009","in_2010","in_2011","in_2012","in_2013","in_2014","in_2015","in_2016","in_2017")
-
-#taking out NUTS2 levels
-UKNUTS2 <- UKData[which(UKData$ï..NUTS.level == 'NUTS2'),]
-
-names(UKNUTS2) <- c("NUTS level", "NUTS.code", "Region name", "in_1997","in_1998","in_1999","in_2000","in_2001","in_2002","in_2003","in_2004","in_2005","in_2006","in_2007",
-                    "in_2008","in_2009","in_2010","in_2011","in_2012","in_2013","in_2014","in_2015","in_2016","in_2017")
-
-
-#taking out NUTS3 levels
-UKNUTS3 <- UKData[which(UKData$ï..NUTS.level == "NUTS3"),]
-
-names(UKNUTS3) <- c("NUTS level", "NUTS.code", "Region name", "in_1997","in_1998","in_1999","in_2000","in_2001","in_2002","in_2003","in_2004","in_2005","in_2006","in_2007",
-                    "in_2008","in_2009","in_2010","in_2011","in_2012","in_2013","in_2014","in_2015","in_2016","in_2017")
-
-#merging the shapefile and the regional data on the basis of the NUTS1 classifications
-UKNUTS1Map <- merge(NUTS1_SF,
-                    UKNUTS1,
-                    by.x = "NUTS3_SF$NUTS1",
-                    by.y = "NUTS.code",
-                    no.dups=TRUE)
-
-#merging the shapefile and the regional data on the basis of the NUTS2 classifications
-UKNUTS2Map <- merge(NUTS2_SF,
-                    UKNUTS2,
-                    by.x = "NUTS3_SF$NUTS2",
-                    by.y = "NUTS.code",
-                    no.dups=TRUE)
 
 #merging the shapefile and the regional data on the basis of the NUTS3 classifications
-UKNUTS3Map <- merge(NUTS3_SF,
-                   UKNUTS3,
-                   by.x = "nuts318cd",
-                   by.y = "NUTS.code",
-                   no.dups=TRUE)
+NUTS3 <- merge(NUTS3_SF,
+                UKData,
+                by.x = "nuts318cd",
+                by.y = "NUTS.code",
+                no.dups=TRUE)
+
+names(NUTS3) <- c("NUTS level", "NUTS.code", "Region name", "in_1997","in_1998","in_1999","in_2000","in_2001","in_2002","in_2003","in_2004","in_2005","in_2006","in_2007",
+                    "in_2008","in_2009","in_2010","in_2011","in_2012","in_2013","in_2014","in_2015","in_2016","in_2017")
 
 
-#setting the choices
-choice =c("in_1997","in_1998","in_1999","in_2000","in_2001","in_2002","in_2003","in_2004","in_2005","in_2006","in_2007",
-          "in_2008","in_2009","in_2010","in_2011","in_2012","in_2013","in_2014","in_2015","in_2016","in_2017")
+choice =c("GVA.in.1997", "GVA.in.1998", "GVA.in.1999", "GVA.in.2000", "GVA.in.2001", "GVA.in.2002", "GVA.in.2003", "GVA.in.2004", "GVA.in.2005", "GVA.in.2006", "GVA.in.2007", "GVA.in.2008", "GVA.in.2009", "GVA.in.2010", "GVA.in.2011", "GVA.in.2012", "GVA.in.2013", "GVA.in.2014", "GVA.in.2015", "GVA.in.2016", "GVA.in.2017")
 #setting the column headers to use when running the git
 
 
@@ -91,6 +48,17 @@ ui <- bootstrapPage(
                   #we want them to select the years so we create select input
                   #this is given the id years (to be called in the server) and label it years
                   #the choices that the user can select come from the choices 
+                  selectInput("Geography",
+                              label = "Choose your geography",
+                              choices = c("NUTS3", "NUTS2", "NUTS1"),
+                              multiple=FALSE),
+                  
+                  selectInput("Factor",
+                              label = "Choose your factor",
+                              choices = c("GVA", "Unemployment", "IMD", "LE males", "LE females", "Education", "Brexit"),
+                              multiple=FALSE),
+                  
+                  #we want them to select years based on what geography they have selected
                   selectInput("years",
                               label = "year",
                               choices = choice,
@@ -102,13 +70,13 @@ ui <- bootstrapPage(
                               rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
                   ),
                   #the final slider allows the user to select the regional GVA % they want to see
-                  sliderInput("slide","local GVA",
+                  sliderInput("slide","Values",
                               #this sets the minimum GVA that will be shown
-                              min(as.numeric(UKNUTS3Map$in_2017), na.rm=TRUE),
+                              min(as.numeric(NUTS3_Map$GVA.in..2017), na.rm=TRUE),
                               #this shows the maximum GVA that will be shown
-                              max(as.numeric(UKNUTS3Map$in_2017), na.rm=TRUE),
+                              max(as.numeric(UKDataMap$GVA_._2017), na.rm=TRUE),
                               #this sets the range of the values, we want it to be as big as possible
-                              value = range(as.numeric(UKNUTS3Map$in_2017), na.rm=TRUE),
+                              value = range(as.numeric(UKDataMap$GVA_._2017), na.rm=TRUE),
                               #the step of percentages is in a step of 1
                               step = 1,
                               sep = ""
@@ -121,16 +89,18 @@ ui <- bootstrapPage(
 
 ####################################### server
 server <- function(input, output, session) {
+    
     output$map <- renderLeaflet({
         #use leaflet here, and only include aspects of the map that won't need to change dramatically
-        leaflet(UKNUTS3Map) %>% addTiles() %>% setView(-0.5, 53, zoom = 6)
-    })
-    observe({
+        whichmap <- reactive(paste0(input$Geography, '_', input$Factor))
         
+        leaflet(whichmap) %>% addTiles() %>% setView(-0.5, 53, zoom = 6)
     })
     
+        
+    
     observe({
-        (UKDataMap2 <- ({UKNUTS3Map[as.numeric(UKNUTS3Map[[input$years]])>=input$slide[1]&as.numeric(UKNUTS3Map[[input$years]]) <= input$slide[2],]}))
+        (UKDataMap2 <- ({UKDataMap[as.numeric(UKDataMap[[input$years]])>=input$slide[1]&as.numeric(UKDataMap[[input$years]]) <= input$slide[2],]}))
         breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=11, style= "fixed", fixedBreaks =c(0,75,80,85,90,95,100,105,110,115,120,1000))
         breaks <- breaks$brks
         pal <- colorBin(palette = input$colourbrewerpalette, 
@@ -143,7 +113,7 @@ server <- function(input, output, session) {
                         opacity = 1,
                         dashArray = "3",
                         # a popup of region name and %
-                        popup = paste(UKDataMap2$nuts318nm,"- %",UKDataMap2[[input$years]]),
+                        popup = paste(NUTS3_Map$nuts318nm,"- %",UKDataMap2[[input$years]]),
                         fillOpacity = 0.5, 
                         fillColor = ~pal(UKDataMap2[[input$years]])
             )
@@ -151,7 +121,7 @@ server <- function(input, output, session) {
     
     observe({
         # call the filter again for this observer to be able to create the legend
-        (UKDataMap2<-({UKNUTS3Map[as.numeric(UKNUTS3Map[[input$years]]) >= input$slide[1] & as.numeric(UKNUTS3Map[[input$years]]) <=
+        (UKDataMap2<-({UKDataMap[as.numeric(UKDataMap[[input$years]]) >= input$slide[1] & as.numeric(UKDataMap[[input$years]]) <=
                                      input$slide[2],]}))
         
         breaks<-classIntervals(as.numeric(UKDataMap2[[input$years]]), n=11, style= "fixed", fixedBreaks =c(0,75,80,85,90,95,100,105,110,115,120,1000))
